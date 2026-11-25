@@ -1,32 +1,13 @@
 const byId = id => document.getElementById(id);
-const sites = [
-  {id:'A',name:'Western terrace',x:28,y:39,solar:.94,wind:.58,slope:.8,land:.83,grid:.72},
-  {id:'B',name:'Northern ridge',x:59,y:23,solar:.71,wind:.96,slope:.63,land:.8,grid:.78},
-  {id:'C',name:'Eastern plain',x:72,y:65,solar:.8,wind:.67,slope:.9,land:.68,grid:.62}
-];
-const hazards = [
-  ['Dumping review','New ground disturbance','Check site permits and request dated imagery of the disturbed patch.'],
-  ['Landfill methane','Plume retrieval','Request a methane-specific measurement and a background reading.'],
-  ['Airborne plume','Visible plume','Compare winds and request a calibrated air sample.'],
-  ['Coastal slick','Radar anomaly','Review wind and sea state before requesting a water sample.'],
-  ['River discharge','Colour change','Compare upstream and downstream imagery and request paired samples.'],
-  ['Tailings dam','Displacement trend','Refer the simulated trend to a geotechnical reviewer for instrument checks.'],
-  ['Waste slope','Possible collapse','Review elevation changes and request an engineering inspection.']
-];
-let tab = 'siting', selected = 'A';
-const titles = {siting:'Candidate sites',build:'Construction observations',watch:'Environmental cases'};
+const connected = document.documentElement.dataset.mode === 'connected';
+const titles = {siting:'Candidate sites', build:'Construction observations', watch:'Environmental cases'};
+let catalog, actions, tab = 'siting', selected = 'A';
+let generation = 0, version = 0, historyRows = [];
 function records() {
-  if (tab==='siting') {
-    const solar=byId('mode').value==='Solar';
-    return sites.map(s=>{
-      const resource=solar?s.solar:s.wind;
-      const score=Math.round(100*((solar?.4:.45)*resource+(solar?.25:.15)*s.slope+.2*s.land+(solar?.15:.2)*s.grid));
-      return {...s,score,value:score+' / 100',measure:byId('mode').value+' suitability',detail:'Weighted screening score',review:'Survey decision',finding:'Compare land eligibility and likely connection distance before commissioning a survey.',
-        source:'Illustrative normalized inputs · Resource '+resource+' · Slope benefit '+s.slope+' · Eligible land '+s.land+' · Grid proximity '+s.grid+'. Weights in that order: '+(solar?'40 / 25 / 20 / 15%.':'45 / 15 / 20 / 20%.')};
-    }).sort((a,b)=>b.score-a.score);
-  }
-  if (tab==='build') return [{id:'K',name:'Khavda pilot',x:46,y:43,value:'18.4 ha',measure:'Newly visible infrastructure',detail:'82% common valid coverage',review:'Milestone review',finding:'Inspect the paired footprint before accepting the visible construction milestone.',source:'Illustrative March 2024 and March 2025 comparison. Only clear pixels on both dates count. The review threshold is 70%.'}];
-  return hazards.map(([name,measure,finding],i)=>({id:String(i+1),name,measure,finding,x:[15,37,62,82,25,52,73][i],y:[32,23,33,42,66,75,64][i],value:'Review',detail:'Simulated orbital observation',review:'Next evidence request',source:'Simulated response chain: satellite flag → HAPS watch → drone or field evidence. Analyst confirmation is pending.'}));
+  return tab === 'siting' ? catalog.siting[byId('mode').value] : catalog[tab];
+}
+function recordKey() {
+  return tab === 'siting' ? [tab, byId('mode').value, selected].join('-') : [tab, selected].join('-');
 }
 function selector(record, map) {
   const button=document.createElement('button');
@@ -53,14 +34,98 @@ function render(){
   byId('pins').replaceChildren(...list.map(s=>selector(s,true)));
   byId('rows').replaceChildren(...list.map(s=>selector(s,false)));
   byId('evidence').open=false;
+  byId('masks').hidden = tab !== 'build';
+  if (connected) loadHistory();
 }
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;selected=null;render();});
 byId('mode').onchange=()=>{selected=null;render();};
 byId('export').onclick=()=>{
   const item=records().find(s=>s.id===selected);
-  const brief=['# Kutch portfolio brief','Illustrative pilot · '+titles[tab],'## '+item.name,item.measure+' — '+item.value,item.detail,item.finding,item.source].join('\n\n');
+  const brief=['# Kutch portfolio brief','Illustrative pilot · '+titles[tab],'## '+item.name,item.measure+' — '+item.value,item.detail,item.finding,item.source,...historyRows.map(r => r.saved_at+' UTC · '+r.action)].join('\n\n');
   const url=URL.createObjectURL(new Blob([brief],{type:'text/markdown'}));
   const link=document.createElement('a');link.href=url;link.download='orbitworks-'+tab+'-'+item.id+'.md';link.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
-render();
+function setActive(active) {
+  byId('export').disabled = !active;
+  byId('mode').disabled = !active;
+  document.querySelectorAll('[data-tab]').forEach(button => button.disabled = !active);
+}
+
+async function loadHistory(message = '') {
+  const token = ++generation;
+  const key = recordKey();
+  historyRows = [];
+  byId('export').disabled = true;
+  byId('decisions').hidden = false;
+  byId('save').disabled = true;
+  byId('history').replaceChildren();
+  byId('decision').replaceChildren(...actions[tab].map(action => new Option(action, action)));
+  byId('decision-status').textContent = 'Loading decisions…';
+  try {
+    const response = await fetch('api/reviews/' + key, {cache:'no-store'});
+    if (!response.ok) throw new Error();
+    const rows = await response.json();
+    if (token !== generation) return;
+    historyRows = rows;
+    version = rows[0]?.version ?? 0;
+    byId('history').replaceChildren(...rows.map(row => {
+      const item = document.createElement('li');
+      item.textContent = row.action + ' · ' + row.saved_at + ' UTC';
+      return item;
+    }));
+    byId('decision-status').textContent = message || (rows.length ? '' : 'No decisions recorded.');
+    byId('save').disabled = false;
+    byId('export').disabled = false;
+  } catch {
+    if (token === generation) byId('decision-status').textContent = 'Could not load decisions. Select the record again to retry.';
+  }
+}
+
+byId('decision-form').onsubmit = async event => {
+  event.preventDefault();
+  if (byId('save').disabled) return;
+  const token = generation;
+  byId('save').disabled = true;
+  byId('export').disabled = true;
+  byId('decision-status').textContent = 'Saving…';
+  try {
+    const response = await fetch('api/reviews/' + recordKey(), {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:byId('decision').value, version})
+    });
+    if (token !== generation) return;
+    if (response.status === 409) {
+      await loadHistory('Another reviewer saved a decision. Check the latest entry before saving.');
+    } else if (response.ok) {
+      await loadHistory('Decision saved.');
+    } else {
+      throw new Error();
+    }
+  } catch {
+    if (token === generation) await loadHistory('Save could not be confirmed. Check the log before retrying.');
+  }
+};
+
+byId('scene-year').onchange = event => {
+  const year = event.target.value;
+  byId('mask-image').src = 'assets/mask-' + year + '.png';
+  byId('mask-image').alt = 'Simulated classified footprint for March ' + year;
+};
+
+async function start() {
+  setActive(false);
+  try {
+    const response = await fetch(connected ? 'api/portfolio' : 'pilot.json');
+    if (!response.ok) throw new Error();
+    const payload = await response.json();
+    catalog = connected ? payload.portfolio : payload;
+    actions = payload.actions;
+    byId('load-status').textContent = connected ? '' : 'Read-only preview · Run the Python app to save decisions.';
+    setActive(true);
+    render();
+  } catch {
+    byId('load-status').textContent = 'Could not load the portfolio. Reload to retry.';
+  }
+}
+start();

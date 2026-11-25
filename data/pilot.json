@@ -1,0 +1,95 @@
+{
+  "sites": [
+    {
+      "id": "A",
+      "name": "Western terrace",
+      "x": 28,
+      "y": 39,
+      "solar": 0.94,
+      "wind": 0.58,
+      "slope": 0.8,
+      "land": 0.83,
+      "grid": 0.72
+    },
+    {
+      "id": "B",
+      "name": "Northern ridge",
+      "x": 59,
+      "y": 23,
+      "solar": 0.71,
+      "wind": 0.96,
+      "slope": 0.63,
+      "land": 0.8,
+      "grid": 0.78
+    },
+    {
+      "id": "C",
+      "name": "Eastern plain",
+      "x": 72,
+      "y": 65,
+      "solar": 0.8,
+      "wind": 0.67,
+      "slope": 0.9,
+      "land": 0.68,
+      "grid": 0.62
+    }
+  ],
+  "cases": [
+    {
+      "id": "1",
+      "name": "Dumping review",
+      "measure": "New ground disturbance",
+      "finding": "Check site permits and request dated imagery of the disturbed patch.",
+      "x": 15,
+      "y": 32
+    },
+    {
+      "id": "2",
+      "name": "Landfill methane",
+      "measure": "Plume retrieval",
+      "finding": "Request a methane-specific measurement and a background reading.",
+      "x": 37,
+      "y": 23
+    },
+    {
+      "id": "3",
+      "name": "Airborne plume",
+      "measure": "Visible plume",
+      "finding": "Compare winds and request a calibrated air sample.",
+      "x": 62,
+      "y": 33
+    },
+    {
+      "id": "4",
+      "name": "Coastal slick",
+      "measure": "Radar anomaly",
+      "finding": "Review wind and sea state before requesting a water sample.",
+      "x": 82,
+      "y": 42
+    },
+    {
+      "id": "5",
+      "name": "River discharge",
+      "measure": "Colour change",
+      "finding": "Compare upstream and downstream imagery and request paired samples.",
+      "x": 25,
+      "y": 66
+    },
+    {
+      "id": "6",
+      "name": "Tailings dam",
+      "measure": "Displacement trend",
+      "finding": "Refer the simulated trend to a geotechnical reviewer for instrument checks.",
+      "x": 52,
+      "y": 75
+    },
+    {
+      "id": "7",
+      "name": "Waste slope",
+      "measure": "Possible collapse",
+      "finding": "Review elevation changes and request an engineering inspection.",
+      "x": 73,
+      "y": 64
+    }
+  ]
+}

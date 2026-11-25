@@ -1,10 +1,16 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#20264d"><title>OrbitWorks · Kutch portfolio brief</title><link rel="stylesheet" href="style.css"><script defer src="app.js"></script></head><body>
+<html lang="en" data-mode="preview"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#20264d"><title>OrbitWorks · Kutch portfolio brief</title><link rel="stylesheet" href="style.css"><script defer src="app.js"></script></head><body>
 <header><div class="shell top"><a class="brand" href="./"><i aria-hidden="true"></i>OrbitWorks</a><span class="workspace">Portfolio workspace</span><button id="export">Export brief ↓</button></div></header>
 <main class="shell"><div class="intro"><div><p class="eyebrow">GUJARAT &nbsp; / &nbsp; INDIA</p><h1>Kutch portfolio brief</h1><p>Land suitability, construction progress and environmental review.</p></div><span class="demo">Illustrative pilot</span></div>
+<p id="load-status" role="status">Loading portfolio…</p>
 <nav aria-label="Portfolio views"><button data-tab="siting" aria-pressed="true">Renewable siting</button><button data-tab="build" aria-pressed="false">Construction</button><button data-tab="watch" aria-pressed="false">Environmental watch</button></nav>
 <div class="grid"><section class="mapcard"><div class="maphead"><div><p class="eyebrow">STUDY AREA</p><h2>Khavda landscape</h2></div><span class="location">Kutch district</span></div>
 <div class="map" aria-label="Illustrative landscape with selectable sites"><span class="north">↑ N</span><div id="pins"></div><span class="mapnote">Schematic terrain · illustrative locations</span></div><div class="legend"><span><b></b>Selected site</span><span><b></b>Review location</span></div></section>
-<section class="dossier" aria-live="polite"><p id="kind" class="eyebrow"></p><h2 id="site"></h2><div class="metric"><p id="measure"></p><strong id="value"></strong><small id="detail"></small></div><h3 id="review"></h3><p id="finding"></p><details id="evidence"><summary>Review evidence</summary><p id="source"></p></details></section></div>
+<section class="dossier" aria-live="polite"><p id="kind" class="eyebrow"></p><h2 id="site"></h2><div class="metric"><p id="measure"></p><strong id="value"></strong><small id="detail"></small></div><h3 id="review"></h3><p id="finding"></p><details id="evidence"><summary>Review evidence</summary><p id="source"></p></details>
+<div id="masks" hidden><h3>Classification footprint</h3><label>Scene <select id="scene-year"><option>2024</option><option selected>2025</option></select></label>
+<img id="mask-image" src="assets/mask-2025.png" alt="Simulated classified footprint for March 2025">
+<small>Blue · infrastructure &nbsp; Green · background &nbsp; Gray · unknown</small></div>
+<div id="decisions" hidden><h3>Decision log</h3><form id="decision-form"><label>Decision <select id="decision"></select></label><button id="save" type="submit">Save</button></form>
+<p id="decision-status" role="status"></p><ol id="history"></ol></div></section></div>
 <section class="register"><div class="registerhead"><div><p class="eyebrow">PORTFOLIO REGISTER</p><h2 id="listtitle"></h2></div><label id="modewrap">Resource <select id="mode"><option>Solar</option><option>Wind</option></select></label></div><div id="rows"></div></section></main>
 </body></html>
