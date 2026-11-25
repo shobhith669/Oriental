@@ -1,16 +1,202 @@
 <!doctype html>
-<html lang="en" data-mode="preview"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#20264d"><title>OrbitWorks · Kutch portfolio brief</title><link rel="stylesheet" href="style.css"><script defer src="app.js"></script></head><body>
-<header><div class="shell top"><a class="brand" href="./"><i aria-hidden="true"></i>OrbitWorks</a><span class="workspace">Portfolio workspace</span><button id="export">Export brief ↓</button></div></header>
-<main class="shell"><div class="intro"><div><p class="eyebrow">GUJARAT &nbsp; / &nbsp; INDIA</p><h1>Kutch portfolio brief</h1><p>Land suitability, construction progress and environmental review.</p></div><span class="demo">Illustrative pilot</span></div>
-<p id="load-status" role="status">Loading portfolio…</p>
-<nav aria-label="Portfolio views"><button data-tab="siting" aria-pressed="true">Renewable siting</button><button data-tab="build" aria-pressed="false">Construction</button><button data-tab="watch" aria-pressed="false">Environmental watch</button></nav>
-<div class="grid"><section class="mapcard"><div class="maphead"><div><p class="eyebrow">STUDY AREA</p><h2>Khavda landscape</h2></div><span class="location">Kutch district</span></div>
-<div class="map" aria-label="Illustrative landscape with selectable sites"><span class="north">↑ N</span><div id="pins"></div><span class="mapnote">Schematic terrain · illustrative locations</span></div><div class="legend"><span><b></b>Selected site</span><span><b></b>Review location</span></div></section>
-<section class="dossier" aria-live="polite"><p id="kind" class="eyebrow"></p><h2 id="site"></h2><div class="metric"><p id="measure"></p><strong id="value"></strong><small id="detail"></small></div><h3 id="review"></h3><p id="finding"></p><details id="evidence"><summary>Review evidence</summary><p id="source"></p></details>
-<div id="masks" hidden><h3>Classification footprint</h3><label>Scene <select id="scene-year"><option>2024</option><option selected>2025</option></select></label>
-<img id="mask-image" src="assets/mask-2025.png" alt="Simulated classified footprint for March 2025">
-<small>Blue · infrastructure &nbsp; Green · background &nbsp; Gray · unknown</small></div>
-<div id="decisions" hidden><h3>Decision log</h3><form id="decision-form"><label>Decision <select id="decision"></select></label><button id="save" type="submit">Save</button></form>
-<p id="decision-status" role="status"></p><ol id="history"></ol></div></section></div>
-<section class="register"><div class="registerhead"><div><p class="eyebrow">PORTFOLIO REGISTER</p><h2 id="listtitle"></h2></div><label id="modewrap">Resource <select id="mode"><option>Solar</option><option>Wind</option></select></label></div><div id="rows"></div></section></main>
-</body></html>
+<html lang="en" data-mode="preview">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Observation atlas · OrbitWorks</title>
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="atlas.css" />
+    <script src="vendor/leaflet/leaflet.js" defer></script>
+    <script src="atlas.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <div class="shell top">
+        <a class="brand" href="./"><i aria-hidden="true"></i>OrbitWorks</a
+        ><span class="workspace">Observation atlas</span
+        ><a class="navlink" href="pilot.html">Illustrative portfolio ↗</a>
+      </div>
+    </header>
+    <main class="shell">
+      <div class="intro">
+        <div>
+          <p class="eyebrow">EARTH OBSERVATION</p>
+          <h1>Renewables atlas</h1>
+          <p>
+            Trace construction in Kutch and inspect environmental evidence at a
+            location.
+          </p>
+        </div>
+        <button id="download" class="quiet" disabled>Export GeoJSON ↓</button>
+      </div>
+      <div class="atlasgrid">
+        <section class="mapcard">
+          <div class="maphead">
+            <div>
+              <p class="eyebrow">GLOBAL RENEWABLES WATCH</p>
+              <h2>Construction history</h2>
+            </div>
+            <button class="quiet" id="reset">Fit Kutch</button>
+          </div>
+          <div id="atlasmap" aria-label="Observation map"></div>
+          <div class="timeline">
+            <label for="quarter">Detected by <b id="period">2024 Q2</b></label
+            ><input
+              id="quarter"
+              type="range"
+              min="0"
+              max="26"
+              value="26"
+              aria-label="Construction detection quarter"
+            />
+            <div class="switches">
+              <label
+                ><input id="solar" type="checkbox" checked /> Solar
+                footprints</label
+              ><label
+                ><input id="wind" type="checkbox" checked /> Wind
+                turbines</label
+              ><span class="selection-key">Selected point</span>
+            </div>
+          </div>
+        </section>
+        <section class="dossier">
+          <p class="eyebrow">VISIBLE MAP EXTENT</p>
+          <h2>Asset inventory</h2>
+          <div class="counts">
+            <div>
+              <strong id="scount">—</strong><small>Solar footprints</small>
+            </div>
+            <div>
+              <strong id="wcount">—</strong><small>Wind turbines</small>
+            </div>
+          </div>
+          <p id="footprint"></p>
+          <p class="caption">
+            Historical detections through June 2024. The first quarter includes
+            assets already visible at baseline.
+          </p>
+          <h3>Map imagery</h3>
+          <label for="basemap">Layer</label
+          ><select id="basemap">
+            <option value="offline">Offline land</option>
+            <option value="osm">OpenStreetMap</option>
+            <option value="viirs">VIIRS night lights</option>
+          </select>
+          <label for="imageryDate">Night-light acquisition date</label
+          ><input id="imageryDate" type="date" />
+          <p id="mapstatus" class="caption" role="status"></p>
+        </section>
+      </div>
+      <section class="panel">
+        <div class="sectionhead">
+          <div>
+            <p class="eyebrow">POINT QUERY</p>
+            <h2>Inspect a location</h2>
+          </div>
+          <span class="location" id="connection"></span>
+        </div>
+        <form id="query">
+          <div class="inputs">
+            <label
+              >Latitude<input
+                name="lat"
+                type="number"
+                min="-85"
+                max="85"
+                step="any"
+                value="23.35"
+                required
+            /></label>
+            <label
+              >Longitude<input
+                name="lon"
+                type="number"
+                min="-180"
+                max="180"
+                step="any"
+                value="69.2"
+                required
+            /></label>
+            <label>From (UTC)<input name="start" type="date" required /></label
+            ><label
+              >Through (UTC)<input name="end" type="date" required
+            /></label>
+          </div>
+          <p class="caption">
+            Click the map or enter coordinates. Select up to 92 days for
+            historical queries.
+          </p>
+          <details>
+            <summary>Choose datasets</summary>
+            <div class="toolbar"><button type="button" class="quiet" id="allfeeds">Select all datasets</button><button type="button" class="quiet" id="nofeeds">Clear selection</button></div>
+            <div class="sourcechoices" id="choices"></div>
+          </details>
+          <div class="toolbar">
+            <button class="primary" id="run" disabled>Fetch observations</button
+            ><label
+              ><input type="checkbox" id="auto" /> Refresh every 5 min</label
+            ><button type="button" class="quiet" id="savepoint" disabled>
+              Save point for comparison
+            </button>
+          </div>
+        </form>
+        <p id="feedback" role="status"></p>
+        <div id="reports"></div>
+        <details id="import">
+          <summary>Summarize a coastal AIS file</summary>
+          <p>
+            Send a UTF-8 CSV to this app’s backend. It counts distinct vessels
+            within 25 km and the selected dates. Include MMSI, timestamp (UTC),
+            latitude and longitude. Maximum 4 MiB.
+          </p>
+          <input id="aisfile" type="file" accept=".csv,text/csv" /><button
+            id="analyze"
+            class="quiet"
+          >
+            Analyze CSV
+          </button>
+        </details>
+      </section>
+      <section class="panel" id="comparison" hidden>
+        <div class="sectionhead">
+          <h2>Saved point comparison</h2>
+          <button class="quiet" id="clear">Clear comparison</button>
+        </div>
+        <div class="toolbar">
+          <label
+            >Rank by
+            <select id="rankmode">
+              <option>Solar</option>
+              <option>Wind</option>
+            </select></label
+          ><label
+            >Grid-distance weight
+            <input
+              type="range"
+              min="0"
+              max="50"
+              value="15"
+              id="gridweight"
+            /><output id="gridpct">15%</output></label
+          >
+        </div>
+        <p class="caption">
+          Scores compare complete points within the same date window. Water,
+          wetland, mangrove, snow and built-up classes are excluded. The score
+          uses relative resource, slope and grid distance plus a land-class
+          proxy. A point score is a survey screen.
+        </p>
+        <div id="comparetable"></div>
+      </section>
+      <footer>
+        Construction geometry and quarterly estimates from
+        <a
+          href="https://github.com/microsoft/global-renewables-watch/releases/tag/v1.0"
+          >Global Renewables Watch v1.0</a
+        >. Offline coastline from Natural Earth.
+      </footer>
+    </main>
+  </body>
+</html>

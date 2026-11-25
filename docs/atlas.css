@@ -1,0 +1,222 @@
+.navlink {
+  margin-left: auto;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+.atlasgrid {
+  display: grid;
+  grid-template-columns: minmax(0, 2.3fr) minmax(250px, 1fr);
+  gap: 20px;
+}
+#atlasmap {
+  height: clamp(330px, 42vh, 570px);
+  background: #d9e8ee;
+  z-index: 0;
+}
+.timeline,
+.panel {
+  padding: 20px 24px;
+}
+.timeline input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+.switches,
+.toolbar,
+.sectionhead,
+.counts {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.sectionhead {
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+.panel {
+  background: white;
+  border-radius: 20px;
+  margin-top: 20px;
+}
+.quiet,
+.primary {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  color: var(--accent);
+  padding: 8px 14px;
+  font-weight: 600;
+}
+.primary {
+  background: var(--accent);
+  color: white;
+}
+.counts {
+  margin: 20px 0;
+  background: var(--bg);
+  padding: 15px;
+  border-radius: 12px;
+  justify-content: space-around;
+}
+.counts strong,
+.counts small,
+.dossier label,
+.inputs label input {
+  display: block;
+}
+.counts strong {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+.caption,
+footer {
+  font-size: 14px;
+  color: var(--sub);
+  margin: 8px 0 14px;
+}
+.dossier select,
+.dossier input {
+  width: 100%;
+}
+.dossier label,
+.inputs label {
+  font-size: 14px;
+  color: var(--sub);
+  margin: 8px 0 2px;
+}
+input:not([type="range"]):not([type="checkbox"]) {
+  font: inherit;
+  padding: 7px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  max-width: 100%;
+}
+.inputs,
+.sourcechoices {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+.inputs input {
+  width: 100%;
+}
+.sourcechoices {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  padding-bottom: 14px;
+}
+.toolbar {
+  margin: 12px 0;
+}
+#reports {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 295px), 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.report {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.report h3 {
+  margin: 4px 0 8px;
+}
+.report details {
+  max-height: 310px;
+  overflow: auto;
+}
+.report li {
+  margin: 5px 0;
+}
+.report p,
+.report li {
+  font-size: 14px;
+}
+.report a,
+footer a {
+  color: var(--accent);
+}
+#feedback {
+  min-height: 1.5em;
+}
+.status {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.itemrows {
+  padding-left: 20px;
+}
+.itemrows a {
+  margin-right: 8px;
+}
+#comparetable {
+  overflow: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+td,
+th {
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+footer {
+  padding-bottom: 20px;
+  margin-top: 20px;
+}
+@media (max-width: 800px) {
+  .atlasgrid {
+    grid-template-columns: 1fr;
+  }
+  .panel {
+    padding: 16px;
+  }
+  .intro .quiet {
+    align-self: flex-start;
+  }
+  #atlasmap {
+    height: 330px;
+  }
+}
+
+.place-name.leaflet-tooltip {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  font-weight: 600;
+  font-size: 10px;
+  color: #4e5851;
+  text-shadow: 0 1px 2px white;
+}
+.place-name.leaflet-tooltip:before {
+  display: none;
+}
+
+#solar {
+  accent-color: #b55b1b;
+}
+#wind {
+  accent-color: #2945aa;
+}
+.selection-key {
+  font-size: 14px;
+  color: var(--sub);
+}
+.selection-key:before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #b63847;
+  margin-right: 7px;
+}

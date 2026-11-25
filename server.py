@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
 from portfolio import ROOT, portfolio
+from observations import router as observations_router
 
 ACTIONS = {
     "siting": ("Shortlist for survey", "Defer survey"),
@@ -40,6 +41,7 @@ def create_app(database=None):
         conn.commit()
 
     app = FastAPI(title="OrbitWorks", docs_url="/api/docs", redoc_url=None)
+    app.include_router(observations_router)
 
     @app.get("/api/portfolio")
     def get_portfolio():
@@ -80,6 +82,10 @@ def create_app(database=None):
     @app.get("/index.html", response_class=HTMLResponse)
     def index():
         return (ROOT / "docs/index.html").read_text(encoding="utf-8").replace('data-mode="preview"', 'data-mode="connected"')
+
+    @app.get("/pilot.html", response_class=HTMLResponse)
+    def pilot_page():
+        return (ROOT / "docs/pilot.html").read_text(encoding="utf-8").replace('data-mode="preview"', 'data-mode="connected"')
 
     app.mount("/", StaticFiles(directory=ROOT / "docs"), name="frontend")
     return app

@@ -1,0 +1,72 @@
+{
+  "history": {
+    "name": "Global Renewables Watch",
+    "url": "https://github.com/microsoft/global-renewables-watch/releases/tag/v1.0",
+    "basis": "Satellite-derived quarterly detections · Kutch extract through 2024 Q2"
+  },
+  "power": {
+    "name": "NASA POWER",
+    "url": "https://power.larc.nasa.gov/",
+    "basis": "Daily historical model estimates"
+  },
+  "weather": {
+    "name": "Open-Meteo",
+    "url": "https://open-meteo.com/",
+    "basis": "Latest modeled conditions"
+  },
+  "osm": {
+    "name": "OpenStreetMap contributors",
+    "url": "https://www.openstreetmap.org/copyright",
+    "basis": "Current mapped substations within 20 km"
+  },
+  "sentinel1": {
+    "name": "Sentinel-1 radar",
+    "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/sentinel-1-grd",
+    "basis": "Acquisitions in selected dates"
+  },
+  "sentinel2": {
+    "name": "Sentinel-2 optical",
+    "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/sentinel-2-l2a",
+    "basis": "Acquisitions in selected dates"
+  },
+  "landsat": {
+    "name": "Landsat Collection 2",
+    "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2",
+    "basis": "Acquisitions in selected dates"
+  },
+  "viirs": {
+    "name": "NASA VIIRS Black Marble",
+    "url": "https://blackmarble.gsfc.nasa.gov/",
+    "basis": "VNP46A2 granules in selected dates"
+  },
+  "worldcover": {
+    "name": "ESA WorldCover",
+    "url": "https://esa-worldcover.org/en",
+    "basis": "2021 land cover at the selected point"
+  },
+  "ghsl": {
+    "name": "JRC Global Human Settlement Layer",
+    "url": "https://human-settlement.emergency.copernicus.eu/",
+    "basis": "Reference raster or available GHSL map layers"
+  },
+  "bhuvan": {
+    "name": "ISRO Bhuvan",
+    "url": "https://bhuvan.nrsc.gov.in/",
+    "basis": "Available regional WMS layers"
+  },
+  "dem": {
+    "name": "Terrain slope",
+    "url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+    "basis": "Local DEM or Copernicus GLO-90 via Open-Meteo Elevation · approximate slope"
+  },
+  "ais": {
+    "name": "Fintraffic Digitraffic AIS",
+    "url": "https://www.digitraffic.fi/en/marine-traffic/",
+    "basis": "Recent aggregate vessel reports · Finnish waters"
+  },
+  "debris": {
+    "name": "CelesTrak debris catalog",
+    "url": "https://celestrak.org/NORAD/elements/",
+    "basis": "Global COSMOS 2251 debris catalog snapshot"
+  }
+}
