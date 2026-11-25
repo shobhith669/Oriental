@@ -20,7 +20,7 @@ class PortfolioTests(unittest.TestCase):
 
     def test_snapshot_and_connected_entry(self):
         portfolio = self.client.get("/api/portfolio").json()["portfolio"]
-        self.assertEqual(portfolio, json.loads((ROOT / "docs/pilot.json").read_text()))
+        self.assertEqual(portfolio, json.loads((ROOT / "docs/pilot.json").read_text(encoding="utf-8")))
         self.assertEqual(portfolio["siting"]["Wind"][0]["id"], "B")
         self.assertEqual(portfolio["build"][0]["value"], "18.4 ha")
         self.assertEqual(len(portfolio["watch"]), 7)

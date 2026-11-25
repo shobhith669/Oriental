@@ -46,7 +46,7 @@ def construction():
 
 
 def portfolio():
-    pilot = json.loads((DATA / "pilot.json").read_text())
+    pilot = json.loads((DATA / "pilot.json").read_text(encoding="utf-8"))
     watch = [dict(**case, value="Review", detail="Simulated orbital observation",
                   review="Next evidence request", source="Simulated satellite → HAPS → field evidence scenario.")
              for case in pilot["cases"]]
@@ -55,4 +55,4 @@ def portfolio():
 
 
 if __name__ == "__main__":
-    (ROOT / "docs/pilot.json").write_text(json.dumps(portfolio(), indent=2, ensure_ascii=False) + "\n")
+    (ROOT / "docs/pilot.json").write_text(json.dumps(portfolio(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

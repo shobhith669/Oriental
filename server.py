@@ -79,7 +79,7 @@ def create_app(database=None):
     @app.get("/", response_class=HTMLResponse)
     @app.get("/index.html", response_class=HTMLResponse)
     def index():
-        return (ROOT / "docs/index.html").read_text().replace('data-mode="preview"', 'data-mode="connected"')
+        return (ROOT / "docs/index.html").read_text(encoding="utf-8").replace('data-mode="preview"', 'data-mode="connected"')
 
     app.mount("/", StaticFiles(directory=ROOT / "docs"), name="frontend")
     return app

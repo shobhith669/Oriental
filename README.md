@@ -4,7 +4,7 @@ A Civic Brief dashboard for renewable project screening, orbital construction re
 
 ## Run the full app
 
-Use Python 3.11 or newer. From the repository root:
+Use Python 3.12 (64-bit on Windows), the version tested with the pinned NumPy dependency. From the repository root:
 
 ```sh
 python -m venv .venv
