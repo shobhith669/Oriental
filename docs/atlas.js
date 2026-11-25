@@ -11,9 +11,12 @@ fields.start.max = fields.end.max = el("imageryDate").max = day(0);
 el("imageryDate").value = day(-3);
 const map = L.map("atlasmap", {
   preferCanvas: true,
-  minZoom: 2,
+  minZoom: 0,
   maxZoom: 18,
-}).setView([23.65, 69.75], 8);
+}).fitBounds([
+  [-63, -179],
+  [78, 179],
+]);
 map.attributionControl.setPrefix("Leaflet");
 map.createPane("baseTiles").style.zIndex = 250;
 map.createPane("coast").style.zIndex = 210;
@@ -73,9 +76,80 @@ function period(index) {
   const n = 2017 * 4 + 3 + Number(index);
   return Math.floor(n / 4) + " Q" + ((n % 4) + 1);
 }
+const kutchBounds = L.latLngBounds([22.6, 68], [24.6, 71.5]);
+const globalLayer = L.layerGroup();
+let cells = [],
+  places = [],
+  cellsReady = false,
+  detailsReady = false;
+function showGlobal(bounds) {
+  if (map.hasLayer(assets)) map.removeLayer(assets);
+  globalLayer.clearLayers().addTo(map);
+  const quarter = Number(el("quarter").value);
+  let suns = 0,
+    turbines = 0;
+  for (const [x, y, series] of cells) {
+    const cell = L.latLngBounds([y, x], [y + 1, x + 1]);
+    if (!bounds.intersects(cell)) continue;
+    let solar = 0,
+      wind = 0;
+    for (const [q, s, w] of series) {
+      if (q > quarter) break;
+      solar += s;
+      wind += w;
+    }
+    if (!el("solar").checked) solar = 0;
+    if (!el("wind").checked) wind = 0;
+    if (!solar && !wind) continue;
+    suns += solar;
+    turbines += wind;
+    L.rectangle(cell, {
+      weight: 0.5,
+      color: solar > wind ? "#a7581c" : "#2945aa",
+      fillOpacity: Math.min(0.84, 0.18 + Math.log10(solar + wind + 1) * 0.17),
+    })
+      .bindTooltip(node("span", solar + " solar · " + wind + " wind"))
+      .addTo(globalLayer);
+    visible.push({
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [x, y],
+            [x + 1, y],
+            [x + 1, y + 1],
+            [x, y + 1],
+            [x, y],
+          ],
+        ],
+      },
+      properties: {
+        solar,
+        wind,
+        detected_by: period(quarter),
+        aggregation: "1 degree cell",
+      },
+    });
+  }
+  el("scount").textContent = cellsReady ? suns.toLocaleString() : "—";
+  el("wcount").textContent = cellsReady ? turbines.toLocaleString() : "—";
+  el("footprint").textContent = cellsReady
+    ? "Totals for whole 1° cells intersecting this view. Hover over a cell for its counts."
+    : "Worldwide inventory is loading.";
+  el("download").disabled = !cellsReady;
+  locationDot.bringToFront();
+}
 function updateExtent() {
   const bounds = map.getBounds();
   visible = [];
+  if (map.getZoom() < 6 || !kutchBounds.contains(map.getCenter())) {
+    showGlobal(bounds);
+    return;
+  }
+  if (map.hasLayer(globalLayer)) map.removeLayer(globalLayer);
+  if (!map.hasLayer(assets)) assets.addTo(map);
+  el("download").disabled = !detailsReady;
   let solar = 0,
     wind = 0,
     area = 0;
@@ -172,6 +246,74 @@ function selectPoint(lat, lon) {
 }
 map.on("click", (e) => selectPoint(e.latlng.lat, e.latlng.lng));
 map.on("moveend", updateExtent);
+el("world").onclick = () =>
+  map.fitBounds([
+    [-63, -179],
+    [78, 179],
+  ]);
+el("india").onclick = () =>
+  map.fitBounds([
+    [7, 67],
+    [37, 98],
+  ]);
+const folded = (value) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+function goTo(lat, lon, label) {
+  selectPoint(lat, lon);
+  map.setView([lat, lon], 8);
+  el("place-results").replaceChildren();
+  el("place-status").textContent = label + " selected for observation queries.";
+}
+el("place-search").onsubmit = (event) => {
+  event.preventDefault();
+  const value = el("place").value.trim();
+  const coordinate = value.match(
+    /^([+-]?\d+(?:\.\d+)?)\s*,\s*([+-]?\d+(?:\.\d+)?)$/,
+  );
+  el("place-results").replaceChildren();
+  if (coordinate) {
+    const lat = Number(coordinate[1]),
+      lon = Number(coordinate[2]);
+    if (Math.abs(lat) <= 85 && Math.abs(lon) <= 180) goTo(lat, lon, value);
+    else
+      el("place-status").textContent =
+        "Use latitude −85 to 85 and longitude −180 to 180.";
+    return;
+  }
+  const term = folded(value);
+  if (!term) return;
+  const matches = places.filter(
+    ([name, country, , , aliases]) =>
+      folded(name + ", " + country).includes(term) ||
+      folded(aliases).includes(term),
+  );
+  if (matches.length === 1) {
+    const [name, country, lat, lon] = matches[0];
+    goTo(lat, lon, name + ", " + country);
+    return;
+  }
+  el("place-status").textContent = matches.length
+    ? "Choose a matching place."
+    : places.length
+      ? "No matching city. Try latitude, longitude."
+      : "City index unavailable. Enter latitude, longitude.";
+  for (const [name, country, lat, lon] of matches.slice(0, 8)) {
+    const li = node("li"),
+      button = node(
+        "button",
+        name + ", " + country + " (" + lat + ", " + lon + ")",
+        "quiet",
+      );
+    button.type = "button";
+    button.onclick = () => goTo(lat, lon, name + ", " + country);
+    li.append(button);
+    el("place-results").append(li);
+  }
+};
 el("reset").onclick = () =>
   map.fitBounds([
     [22.6, 68],
@@ -370,9 +512,13 @@ async function refresh(event) {
   el("run").disabled = false;
   el("savepoint").disabled = !count;
 }
-for (const [id, checked] of [["allfeeds", true], ["nofeeds", false]]) {
+for (const [id, checked] of [
+  ["allfeeds", true],
+  ["nofeeds", false],
+]) {
   el(id).onclick = () => {
-    for (const input of el("choices").querySelectorAll("input")) input.checked = checked;
+    for (const input of el("choices").querySelectorAll("input"))
+      input.checked = checked;
     invalidate();
   };
 }
@@ -636,8 +782,8 @@ async function start() {
       layer.on("click", (e) => selectPoint(e.latlng.lat, e.latlng.lng));
       return { feature, layer, bounds: layer.getBounds() };
     });
+    detailsReady = true;
     history();
-    el("download").disabled = false;
   });
   const registry = json(
     connected ? "api/sources" : "assets/geo/sources.json",
@@ -662,7 +808,22 @@ async function start() {
     }
     el("run").disabled = !connected;
   });
-  const checks = await Promise.allSettled([coast, regional, catalog, registry]);
+  const globalData = json("assets/geo/global-cells.json").then((data) => {
+    cells = data;
+    cellsReady = true;
+    updateExtent();
+  });
+  const cities = json("assets/geo/places.json").then((data) => {
+    places = data;
+  });
+  const checks = await Promise.allSettled([
+    coast,
+    regional,
+    catalog,
+    registry,
+    globalData,
+    cities,
+  ]);
   if (checks.some((r) => r.status === "rejected"))
     el("mapstatus").textContent =
       "Some atlas files failed to load. Reload to retry.";

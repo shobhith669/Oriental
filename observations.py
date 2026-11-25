@@ -33,7 +33,7 @@ SOURCES = {
     "history": (
         "Global Renewables Watch",
         "https://github.com/microsoft/global-renewables-watch/releases/tag/v1.0",
-        "Satellite-derived quarterly detections · Kutch extract through 2024 Q2",
+        "Worldwide quarterly detections through 2024 Q2 · individual features in Kutch",
     ),
     "power": (
         "NASA POWER",
@@ -280,11 +280,49 @@ def historical_points():
     return records
 
 
+@lru_cache(maxsize=1)
+def worldwide_inventory():
+    path = Path(__file__).resolve().parent / "docs/assets/geo/global-cells.json"
+    return {
+        (x, y): series for x, y, series in json.loads(path.read_text(encoding="utf-8"))
+    }
+
+
 def history_summary(lat, lon, start, end):
-    if not (68 <= lon <= 71.5 and 22.6 <= lat <= 24.6):
-        raise NoData("Point is outside the bundled Kutch inventory.")
     if end < date(2017, 12, 31):
         raise NoData("The first inventory is the 2017 Q4 baseline.")
+    if not (68 <= lon <= 71.5 and 22.6 <= lat <= 24.6):
+        x, y = math.floor((lon + 180) % 360 - 180), math.floor(lat)
+        series = worldwide_inventory().get((x, y), [])
+        rows = []
+        for index, solar, wind in series:
+            year, q = divmod(2017 * 4 + 3 + index, 4)
+            month = 3 * (q + 1)
+            detected = date(year, month, monthrange(year, month)[1])
+            if detected <= end:
+                rows.append(
+                    {
+                        "quarter_end": detected.isoformat(),
+                        "solar_footprints": solar,
+                        "wind_turbines": wind,
+                    }
+                )
+        count = sum(r["solar_footprints"] + r["wind_turbines"] for r in rows)
+        in_window = sum(
+            r["solar_footprints"] + r["wind_turbines"]
+            for r in rows
+            if start.isoformat() <= r["quarter_end"] and r["quarter_end"] > "2017-12-31"
+        )
+        note = (
+            "No coverage after June 2024."
+            if start > date(2024, 6, 30)
+            else f"{in_window} first detections in completed non-baseline quarters ending in the window."
+        )
+        return result(
+            f"{count} archived assets in the selected 1° cell by {min(end, date(2024, 6, 30))}. {note}",
+            rows,
+            spatial_basis=f"Whole grid cell from ({y}, {x}) to ({y + 1}, {x + 1}).",
+        )
     quarters = {}
     for y, x, detected, kind, area in historical_points():
         if detected > end or distance(lat, lon, y, x) > 25:

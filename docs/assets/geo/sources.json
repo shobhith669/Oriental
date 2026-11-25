@@ -2,7 +2,7 @@
   "history": {
     "name": "Global Renewables Watch",
     "url": "https://github.com/microsoft/global-renewables-watch/releases/tag/v1.0",
-    "basis": "Satellite-derived quarterly detections · Kutch extract through 2024 Q2"
+    "basis": "Worldwide quarterly detections through 2024 Q2 · individual features in Kutch"
   },
   "power": {
     "name": "NASA POWER",

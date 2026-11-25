@@ -46,6 +46,12 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
             ) as client:
                 return await fetch_source(source, lat, lon, START, END, client)
 
+    async def test_worldwide_history(self):
+        data = await self.read("history", [], lat=52.52, lon=13.405)
+        self.assertIn("1° cell", data["summary"])
+        self.assertTrue(data["rows"])
+        self.assertTrue(all(row["quarter_end"] <= END.isoformat() for row in data["rows"]))
+
     async def test_real_quarterly_inventory(self):
         data = await self.read("history", [], lat=23.35, lon=69.2)
         self.assertGreater(sum(r["wind_turbines"] for r in data["rows"]), 0)

@@ -24,8 +24,8 @@
           <p class="eyebrow">EARTH OBSERVATION</p>
           <h1>Renewables atlas</h1>
           <p>
-            Trace construction in Kutch and inspect environmental evidence at a
-            location.
+            Explore renewable installations worldwide and inspect environmental
+            evidence at a location.
           </p>
         </div>
         <button id="download" class="quiet" disabled>Export GeoJSON ↓</button>
@@ -37,8 +37,25 @@
               <p class="eyebrow">GLOBAL RENEWABLES WATCH</p>
               <h2>Construction history</h2>
             </div>
-            <button class="quiet" id="reset">Fit Kutch</button>
+            <div class="viewbuttons" aria-label="Map views">
+              <button class="quiet" id="world">World</button>
+              <button class="quiet" id="india">India</button>
+              <button class="quiet" id="reset">Kutch</button>
+            </div>
           </div>
+          <form id="place-search" class="place-search">
+            <label for="place">Find a city or coordinates</label>
+            <div>
+              <input
+                id="place"
+                type="search"
+                required
+                placeholder="Bengaluru or 12.97, 77.59"
+              /><button class="quiet">Go</button>
+            </div>
+            <p role="status" id="place-status"></p>
+            <ul id="place-results"></ul>
+          </form>
           <div id="atlasmap" aria-label="Observation map"></div>
           <div class="timeline">
             <label for="quarter">Detected by <b id="period">2024 Q2</b></label
@@ -74,8 +91,9 @@
           </div>
           <p id="footprint"></p>
           <p class="caption">
-            Historical detections through June 2024. The first quarter includes
-            assets already visible at baseline.
+            Worldwide counts use 1° cells. Zoom into Kutch for individual
+            features. Historical detections through June 2024. The first quarter
+            includes assets already visible at baseline.
           </p>
           <h3>Map imagery</h3>
           <label for="basemap">Layer</label
@@ -130,7 +148,13 @@
           </p>
           <details>
             <summary>Choose datasets</summary>
-            <div class="toolbar"><button type="button" class="quiet" id="allfeeds">Select all datasets</button><button type="button" class="quiet" id="nofeeds">Clear selection</button></div>
+            <div class="toolbar">
+              <button type="button" class="quiet" id="allfeeds">
+                Select all datasets</button
+              ><button type="button" class="quiet" id="nofeeds">
+                Clear selection
+              </button>
+            </div>
             <div class="sourcechoices" id="choices"></div>
           </details>
           <div class="toolbar">

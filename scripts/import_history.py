@@ -84,6 +84,27 @@ def extract(path, kind):
             }
 
 
+def global_cells(solar_path, wind_path):
+    """Count first detections by quarter in 1° cells using bounding-box centres."""
+    cells = {}
+    for index, (kind, path) in enumerate([("solar", solar_path), ("wind", wind_path)]):
+        table = kind + "_all_2024q2"
+        with sqlite3.connect(path) as db:
+            sql = (
+                f"SELECT (r.minx+r.maxx)/2, (r.miny+r.maxy)/2, t.construction_year, "
+                f"t.construction_quarter FROM {table} t JOIN rtree_{table}_geom r ON t.fid=r.id"
+            )
+            for x, y, year, quarter in db.execute(sql):
+                lon, lat = coordinates(x, y)
+                cell = cells.setdefault((math.floor(lon), math.floor(lat)), {})
+                time = (int(year) - 2017) * 4 + int(quarter) - 4
+                cell.setdefault(time, [0, 0])[index] += 1
+    return [
+        [x, y, [[q, *counts] for q, counts in sorted(quarters.items())]]
+        for (x, y), quarters in sorted(cells.items())
+    ]
+
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("solar", type=Path)
@@ -95,5 +116,10 @@ if __name__ == "__main__":
         json.dumps(
             {"type": "FeatureCollection", "features": features}, separators=(",", ":")
         ),
+        encoding="utf-8",
+    )
+
+    output.with_name("global-cells.json").write_text(
+        json.dumps(global_cells(args.solar, args.wind), separators=(",", ":")),
         encoding="utf-8",
     )
